@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.muxi.sdk.WebhookTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-01-29T22:15:26.811Z" hostname="MacBookPro.cable.virginm.net" time="0.02">
+  <properties/>
+  <testcase name="testParseFailedPayload()" classname="dev.muxi.sdk.WebhookTest" time="0.013"/>
+  <testcase name="testVerifySignatureNullHeader()" classname="dev.muxi.sdk.WebhookTest" time="0.0"/>
+  <testcase name="testVerifySignatureInvalidSignature()" classname="dev.muxi.sdk.WebhookTest" time="0.002"/>
+  <testcase name="testVerifySignatureEmptyHeader()" classname="dev.muxi.sdk.WebhookTest" time="0.0"/>
+  <testcase name="testParseClarificationPayload()" classname="dev.muxi.sdk.WebhookTest" time="0.0"/>
+  <testcase name="testVerifySignatureMissingSecret()" classname="dev.muxi.sdk.WebhookTest" time="0.0"/>
+  <testcase name="testParseCompletedPayload()" classname="dev.muxi.sdk.WebhookTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

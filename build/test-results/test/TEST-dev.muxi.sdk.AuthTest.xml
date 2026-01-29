@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.muxi.sdk.AuthTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-01-29T22:15:26.769Z" hostname="MacBookPro.cable.virginm.net" time="0.036">
+  <properties/>
+  <testcase name="testGenerateHmacSignature()" classname="dev.muxi.sdk.AuthTest" time="0.028"/>
+  <testcase name="testBuildAuthHeader()" classname="dev.muxi.sdk.AuthTest" time="0.001"/>
+  <testcase name="testSignatureStripsQueryParams()" classname="dev.muxi.sdk.AuthTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.muxi.sdk.ErrorsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-01-29T22:15:26.806Z" hostname="MacBookPro.cable.virginm.net" time="0.005">
+  <properties/>
+  <testcase name="testMap429ToRateLimitException()" classname="dev.muxi.sdk.ErrorsTest" time="0.003"/>
+  <testcase name="testMap401ToAuthenticationException()" classname="dev.muxi.sdk.ErrorsTest" time="0.001"/>
+  <testcase name="testMap500ToServerException()" classname="dev.muxi.sdk.ErrorsTest" time="0.0"/>
+  <testcase name="testMap403ToAuthorizationException()" classname="dev.muxi.sdk.ErrorsTest" time="0.0"/>
+  <testcase name="testMap404ToNotFoundException()" classname="dev.muxi.sdk.ErrorsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
