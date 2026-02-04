@@ -11,17 +11,23 @@ public class FormationClient {
     private final String baseUrl;
     private final String adminKey;
     private final String clientKey;
+    private final String app;  // Internal: for Console telemetry
     private final OkHttpClient client;
     private final Gson gson = new Gson();
     
     public FormationClient(String serverUrl, String formationId, String clientKey, String adminKey) {
-        this(serverUrl, formationId, clientKey, adminKey, 30);
+        this(serverUrl, formationId, clientKey, adminKey, 30, null);
     }
     
     public FormationClient(String serverUrl, String formationId, String clientKey, String adminKey, int timeout) {
+        this(serverUrl, formationId, clientKey, adminKey, timeout, null);
+    }
+    
+    FormationClient(String serverUrl, String formationId, String clientKey, String adminKey, int timeout, String app) {
         this.baseUrl = serverUrl.replaceAll("/+$", "") + "/api/" + formationId + "/v1";
         this.adminKey = adminKey;
         this.clientKey = clientKey;
+        this.app = app;
         this.client = new OkHttpClient.Builder()
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .readTimeout(timeout, TimeUnit.SECONDS)
@@ -216,6 +222,11 @@ public class FormationClient {
         }
         
         try (Response response = client.newCall(builder.build()).execute()) {
+            // Check for SDK updates (non-blocking, once per process)
+            Map<String, String> headers = new HashMap<>();
+            response.headers().forEach(p -> headers.put(p.getFirst(), p.getSecond()));
+            VersionCheck.checkForUpdates(headers);
+            
             String respBody = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
                 String code = null, message = "Unknown error";
@@ -305,6 +316,7 @@ public class FormationClient {
         builder.header("X-Muxi-Client", "java/" + MuxiVersion.VERSION);
         builder.header("X-Muxi-Idempotency-Key", UUID.randomUUID().toString());
         builder.header("Accept", "application/json");
+        if (app != null && !app.isEmpty()) builder.header("X-Muxi-App", app);
         if (useAdmin) {
             if (adminKey == null) throw new IllegalArgumentException("admin key required");
             builder.header("X-MUXI-ADMIN-KEY", adminKey);

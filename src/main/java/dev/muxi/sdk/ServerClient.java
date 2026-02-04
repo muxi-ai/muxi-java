@@ -11,17 +11,23 @@ public class ServerClient {
     private final String baseUrl;
     private final String keyId;
     private final String secretKey;
+    private final String app;  // Internal: for Console telemetry
     private final OkHttpClient client;
     private final Gson gson = new Gson();
     
     public ServerClient(String url, String keyId, String secretKey) {
-        this(url, keyId, secretKey, 30, 0);
+        this(url, keyId, secretKey, 30, 0, null);
     }
     
     public ServerClient(String url, String keyId, String secretKey, int timeout, int maxRetries) {
+        this(url, keyId, secretKey, timeout, maxRetries, null);
+    }
+    
+    ServerClient(String url, String keyId, String secretKey, int timeout, int maxRetries, String app) {
         this.baseUrl = url.replaceAll("/+$", "");
         this.keyId = keyId;
         this.secretKey = secretKey;
+        this.app = app;
         this.client = new OkHttpClient.Builder()
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .readTimeout(timeout, TimeUnit.SECONDS)
@@ -95,6 +101,7 @@ public class ServerClient {
         builder.header("X-Muxi-Client", "java/" + MuxiVersion.VERSION);
         builder.header("X-Muxi-Idempotency-Key", UUID.randomUUID().toString());
         builder.header("Accept", "application/json");
+        if (app != null && !app.isEmpty()) builder.header("X-Muxi-App", app);
         if (hasBody) builder.header("Content-Type", "application/json");
         if (auth) {
             String[] sig = Auth.generateHmacSignature(method, path, keyId, secretKey);
@@ -104,6 +111,11 @@ public class ServerClient {
     
     private JsonObject execute(Request request) throws IOException {
         try (Response response = client.newCall(request).execute()) {
+            // Check for SDK updates (non-blocking, once per process)
+            java.util.Map<String, String> headers = new java.util.HashMap<>();
+            response.headers().forEach(p -> headers.put(p.getFirst(), p.getSecond()));
+            VersionCheck.checkForUpdates(headers);
+            
             String body = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
                 String code = null, message = "Unknown error";
