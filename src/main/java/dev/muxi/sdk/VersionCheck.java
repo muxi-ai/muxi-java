@@ -16,7 +16,7 @@ public class VersionCheck {
     
     public static void checkForUpdates(Map<String, String> headers) {
         if (!checked.compareAndSet(false, true)) return;
-        if (!isDevMode()) return;
+        if (notificationsDisabled()) return;
         
         String latest = headers.getOrDefault("X-Muxi-SDK-Latest", 
                         headers.get("x-muxi-sdk-latest"));
@@ -33,8 +33,8 @@ public class VersionCheck {
         }
     }
     
-    private static boolean isDevMode() {
-        return "1".equals(System.getenv("MUXI_DEBUG"));
+    private static boolean notificationsDisabled() {
+        return "0".equals(System.getenv("MUXI_SDK_VERSION_NOTIFICATION"));
     }
     
     private static Path getCachePath() {
