@@ -16,15 +16,20 @@ public class FormationClient {
     private final Gson gson = new Gson();
     
     public FormationClient(String serverUrl, String formationId, String clientKey, String adminKey) {
-        this(serverUrl, formationId, clientKey, adminKey, 30, null);
+        this(serverUrl, formationId, clientKey, adminKey, 30, "live", null);
     }
     
     public FormationClient(String serverUrl, String formationId, String clientKey, String adminKey, int timeout) {
-        this(serverUrl, formationId, clientKey, adminKey, timeout, null);
+        this(serverUrl, formationId, clientKey, adminKey, timeout, "live", null);
     }
     
-    FormationClient(String serverUrl, String formationId, String clientKey, String adminKey, int timeout, String app) {
-        this.baseUrl = serverUrl.replaceAll("/+$", "") + "/api/" + formationId + "/v1";
+    public FormationClient(String serverUrl, String formationId, String clientKey, String adminKey, int timeout, String mode) {
+        this(serverUrl, formationId, clientKey, adminKey, timeout, mode, null);
+    }
+    
+    FormationClient(String serverUrl, String formationId, String clientKey, String adminKey, int timeout, String mode, String app) {
+        String prefix = "draft".equals(mode) ? "draft" : "api";
+        this.baseUrl = serverUrl.replaceAll("/+$", "") + "/" + prefix + "/" + formationId + "/v1";
         this.adminKey = adminKey;
         this.clientKey = clientKey;
         this.app = app;
