@@ -1,4 +1,4 @@
-package dev.muxi.sdk;
+package org.muxi.sdk;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package dev.muxi.sdk;
+package org.muxi.sdk;
 
 public class Errors {
     public static class MuxiException extends RuntimeException {

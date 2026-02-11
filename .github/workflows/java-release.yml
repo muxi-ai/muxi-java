@@ -80,7 +80,7 @@ jobs:
       - name: Compute next version
         id: version
         run: |
-          current=$(grep 'VERSION = ' src/main/java/dev/muxi/sdk/Version.java | sed 's/.*"\([^"]*\)".*/\1/')
+          current=$(grep 'VERSION = ' src/main/java/org/muxi/sdk/MuxiVersion.java | sed 's/.*"\([^"]*\)".*/\1/')
           major=$(echo "$current" | cut -d. -f1)
           cdate=$(echo "$current" | cut -d. -f2)
           cpatch=$(echo "$current" | cut -d. -f3)
@@ -95,8 +95,8 @@ jobs:
 
       - name: Set version in source
         run: |
-          sed -i 's/VERSION = ".*"/VERSION = "${{ steps.version.outputs.version }}"/' src/main/java/dev/muxi/sdk/Version.java
-          sed -i 's/version = ".*"/version = "${{ steps.version.outputs.version }}"/' build.gradle
+          sed -i 's/VERSION = ".*"/VERSION = "${{ steps.version.outputs.version }}"/' src/main/java/org/muxi/sdk/MuxiVersion.java
+          sed -i 's/version = ".*"/version = "${{ steps.version.outputs.version }}"/' build.gradle.kts
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -116,7 +116,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/main/java/dev/muxi/sdk/Version.java build.gradle
+          git add src/main/java/org/muxi/sdk/MuxiVersion.java build.gradle.kts
           git commit -m "chore: release v${{ steps.version.outputs.version }}"
           git push origin HEAD:main
 
@@ -140,7 +140,7 @@ jobs:
             
             Add to build.gradle:
             ```groovy
-            implementation 'dev.muxi:muxi-java:${{ steps.version.outputs.version }}'
+            implementation 'org.muxi:muxi-java:${{ steps.version.outputs.version }}'
             ```
 
   sync_develop:

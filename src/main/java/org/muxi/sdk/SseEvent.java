@@ -1,3 +1,3 @@
-package dev.muxi.sdk;
+package org.muxi.sdk;
 
 public record SseEvent(String event, String data) {}

@@ -1,4 +1,4 @@
-package dev.muxi.sdk;
+package org.muxi.sdk;
 
 import com.google.gson.*;
 import com.google.gson.reflect.*;
