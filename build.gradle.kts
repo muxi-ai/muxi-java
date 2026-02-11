@@ -1,6 +1,7 @@
 plugins {
     java
     `java-library`
+    signing
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
 
@@ -30,9 +31,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
+signing {
+    useGpgCmd()
+}
+
 mavenPublishing {
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
     
     coordinates(group.toString(), "muxi-java", version.toString())
     

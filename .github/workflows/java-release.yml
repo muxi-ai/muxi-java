@@ -104,19 +104,20 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
-      - name: Decode GPG key
-        run: echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d > /tmp/signing-key.asc
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d | gpg --batch --import
+          echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
+          gpg-connect-agent reloadagent /bye
+          GPG_KEYGRIP=$(gpg --with-keygrip --list-secret-keys ${{ secrets.MUXI_SDK_GPG_KEY_ID }} | grep Keygrip | head -1 | awk '{print $3}')
+          /usr/lib/gnupg/gpg-preset-passphrase --preset "$GPG_KEYGRIP" <<< "${{ secrets.MUXI_SDK_GPG_PASSPHRASE }}"
 
       - name: Publish to Maven Central
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MUXI_SDK_MAVEN_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MUXI_SDK_MAVEN_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.MUXI_SDK_GPG_KEY_ID }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MUXI_SDK_GPG_PASSPHRASE }}
-        run: |
-          export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat /tmp/signing-key.asc)"
-          ./gradlew publishAndReleaseToMavenCentral
-          rm -f /tmp/signing-key.asc
+          ORG_GRADLE_PROJECT_signing.gnupg.keyName: ${{ secrets.MUXI_SDK_GPG_KEY_ID }}
+        run: ./gradlew publishAndReleaseToMavenCentral
 
       - name: Commit version bump
         run: |
