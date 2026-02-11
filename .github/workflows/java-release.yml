@@ -105,7 +105,13 @@ jobs:
         run: ./gradlew build -x test
 
       - name: Decode GPG key
-        run: echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d > /tmp/signing-key.asc
+        run: |
+          echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d > /tmp/signing-key.asc
+          echo "=== Key file debug ==="
+          head -1 /tmp/signing-key.asc
+          tail -1 /tmp/signing-key.asc
+          wc -l /tmp/signing-key.asc
+          gpg --show-keys /tmp/signing-key.asc 2>&1 || true
 
       - name: Publish to Maven Central
         env:
