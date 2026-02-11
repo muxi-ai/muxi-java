@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.muxi"
-version = "0.1.0-preview"
+version = "0.20260211.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
