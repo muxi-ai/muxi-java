@@ -5,7 +5,7 @@ plugins {
     signing
 }
 
-group = "dev.muxi"
+group = "org.muxi"
 version = "0.1.0-preview"
 
 java {
