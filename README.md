@@ -1,6 +1,6 @@
 # MUXI Java SDK
 
-Official Java SDK for [MUXI](https://muxi.ai) — infrastructure for AI agents.
+Official Java SDK for [MUXI](https://muxi.org) — infrastructure for AI agents.
 
 **Highlights**
 - Pure Java with `OkHttp` transport
@@ -138,5 +138,5 @@ Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for detai
 ## Links
 
 - [MUXI SDKs](https://github.com/muxi-ai/sdks)
-- [MUXI Documentation](https://docs.muxi.ai)
+- [MUXI Documentation](https://docs.muxi.org)
 - [GitHub](https://github.com/muxi-ai/muxi-java)
