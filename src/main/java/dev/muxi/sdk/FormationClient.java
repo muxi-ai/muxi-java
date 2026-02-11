@@ -56,7 +56,7 @@ public class FormationClient {
     public JsonObject getFormationInfo() throws IOException { return request("GET", "/formation", null, null, true, null); }
     
     // Agents / MCP
-    public JsonArray getAgents() throws IOException { return request("GET", "/agents", null, null, true, null).getAsJsonArray(); }
+    public JsonObject getAgents() throws IOException { return request("GET", "/agents", null, null, true, null); }
     public JsonObject getAgent(String agentId) throws IOException { return request("GET", "/agents/" + agentId, null, null, true, null); }
     public JsonArray getMcpServers() throws IOException { return request("GET", "/mcp/servers", null, null, true, null).getAsJsonArray(); }
     public JsonObject getMcpServer(String serverId) throws IOException { return request("GET", "/mcp/servers/" + serverId, null, null, true, null); }

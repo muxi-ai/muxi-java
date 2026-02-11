@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthTest {
     @Test
     void testGenerateHmacSignature() {
-        String[] result = Auth.generateHmacSignature("GET", "/rpc/status", "key123", "secret456");
+        String[] result = Auth.generateHmacSignature("secret456", "GET", "/rpc/status");
         assertNotNull(result);
         assertEquals(2, result.length);
         assertFalse(result[0].isEmpty());
@@ -15,17 +15,17 @@ class AuthTest {
     
     @Test
     void testBuildAuthHeader() {
-        String header = Auth.buildAuthHeader("key123", "sig456", "1234567890");
-        assertTrue(header.contains("MUXI-HMAC-SHA256"));
+        String header = Auth.buildAuthHeader("key123", "secret456", "GET", "/path");
+        assertTrue(header.contains("MUXI-HMAC key="));
         assertTrue(header.contains("key123"));
-        assertTrue(header.contains("sig456"));
-        assertTrue(header.contains("1234567890"));
+        assertTrue(header.contains("timestamp="));
+        assertTrue(header.contains("signature="));
     }
     
     @Test
     void testSignatureStripsQueryParams() {
-        String[] result1 = Auth.generateHmacSignature("GET", "/path", "key", "secret");
-        String[] result2 = Auth.generateHmacSignature("GET", "/path?foo=bar", "key", "secret");
+        String[] result1 = Auth.generateHmacSignature("secret", "GET", "/path");
+        String[] result2 = Auth.generateHmacSignature("secret", "GET", "/path?foo=bar");
         assertNotNull(result1[0]);
         assertNotNull(result2[0]);
     }

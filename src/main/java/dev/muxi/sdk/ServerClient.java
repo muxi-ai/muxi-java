@@ -36,7 +36,7 @@ public class ServerClient {
     
     public JsonObject health() throws IOException { return get("/health", false); }
     public JsonObject status() throws IOException { return rpcGet("/rpc/server/status"); }
-    public JsonArray listFormations() throws IOException { return rpcGet("/rpc/formations").getAsJsonArray(); }
+    public JsonObject listFormations() throws IOException { return rpcGet("/rpc/formations"); }
     public JsonObject getFormation(String formationId) throws IOException { return rpcGet("/rpc/formations/" + formationId); }
     public JsonObject stopFormation(String formationId) throws IOException { return rpcPost("/rpc/formations/" + formationId + "/stop", new JsonObject()); }
     public JsonObject startFormation(String formationId) throws IOException { return rpcPost("/rpc/formations/" + formationId + "/start", new JsonObject()); }
@@ -104,8 +104,7 @@ public class ServerClient {
         if (app != null && !app.isEmpty()) builder.header("X-Muxi-App", app);
         if (hasBody) builder.header("Content-Type", "application/json");
         if (auth) {
-            String[] sig = Auth.generateHmacSignature(method, path, keyId, secretKey);
-            builder.header("Authorization", Auth.buildAuthHeader(keyId, sig[0], sig[1]));
+            builder.header("Authorization", Auth.buildAuthHeader(keyId, secretKey, method, path));
         }
     }
     

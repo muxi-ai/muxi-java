@@ -8,10 +8,10 @@ import java.util.Base64;
 public final class Auth {
     private Auth() {}
     
-    public static String[] generateHmacSignature(String method, String path, String keyId, String secretKey) {
+    public static String[] generateHmacSignature(String secretKey, String method, String path) {
         String cleanPath = path.contains("?") ? path.substring(0, path.indexOf("?")) : path;
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-        String message = method.toUpperCase() + "\n" + cleanPath + "\n" + timestamp;
+        String message = timestamp + ";" + method + ";" + cleanPath;
         
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -23,7 +23,8 @@ public final class Auth {
         }
     }
     
-    public static String buildAuthHeader(String keyId, String signature, String timestamp) {
-        return "MUXI-HMAC-SHA256 Credential=" + keyId + ",Timestamp=" + timestamp + ",Signature=" + signature;
+    public static String buildAuthHeader(String keyId, String secretKey, String method, String path) {
+        String[] result = generateHmacSignature(secretKey, method, path);
+        return "MUXI-HMAC key=" + keyId + ", timestamp=" + result[1] + ", signature=" + result[0];
     }
 }
