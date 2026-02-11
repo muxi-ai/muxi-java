@@ -104,14 +104,18 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
+      - name: Decode GPG key
+        run: echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d > /tmp/signing-key.asc
+
       - name: Publish to Maven Central
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MUXI_SDK_MAVEN_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MUXI_SDK_MAVEN_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MUXI_SDK_GPG_PASSPHRASE }}
         run: |
-          export ORG_GRADLE_PROJECT_signingInMemoryKey=$(echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d)
+          export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat /tmp/signing-key.asc)"
           ./gradlew publishAndReleaseToMavenCentral
+          rm -f /tmp/signing-key.asc
 
       - name: Commit version bump
         run: |
