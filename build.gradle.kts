@@ -1,8 +1,6 @@
 plugins {
     java
     `java-library`
-    `maven-publish`
-    signing
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
 
@@ -12,8 +10,6 @@ version = "0.1.0-preview"
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-    withSourcesJar()
-    withJavadocJar()
 }
 
 repositories {
