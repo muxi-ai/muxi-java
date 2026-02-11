@@ -5,9 +5,7 @@
 ### Gradle
 
 ```kotlin
-dependencies {
-    implementation("dev.muxi:muxi-java:0.1.0")
-}
+implementation("dev.muxi:muxi-java:0.20260211.0")
 ```
 
 ### Maven
@@ -16,138 +14,114 @@ dependencies {
 <dependency>
     <groupId>dev.muxi</groupId>
     <artifactId>muxi-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.20260211.0</version>
 </dependency>
-```
-
-## Quickstart
-
-```java
-import dev.muxi.sdk.ServerClient;
-import dev.muxi.sdk.FormationClient;
-
-// Server client (management, HMAC auth)
-ServerClient server = new ServerClient(
-    "https://server.example.com",
-    "<key_id>",
-    "<secret_key>"
-);
-System.out.println(server.status());
-
-// Formation client (runtime, key auth)
-FormationClient formation = new FormationClient(
-    "https://server.example.com",
-    "<formation_id>",
-    "<client_key>",
-    "<admin_key>"
-);
-System.out.println(formation.health());
 ```
 
 ## Clients
 
-- **ServerClient** (management, HMAC): deploy/list/update formations, server health/status, server logs.
-- **FormationClient** (runtime, client/admin keys): chat/audio (streaming), agents, secrets, MCP, memory, scheduler, sessions/requests, identifiers, credentials, triggers/SOPs/audit, async/A2A/logging config, overlord/LLM settings, events/logs streaming.
+- **ServerClient** (management, HMAC): deploy/list/update formations, server health/status, logs
+- **FormationClient** (runtime, client/admin keys): chat/audio, agents, secrets, MCP, memory, scheduler, sessions, triggers, etc.
 
-## Streaming
+## Quick Start
+
+### ServerClient
 
 ```java
-import dev.muxi.sdk.SseEvent;
+import dev.muxi.sdk.*;
+
+var server = new ServerClient(new ServerConfig(
+    System.getenv("MUXI_SERVER_URL"),
+    System.getenv("MUXI_KEY_ID"),
+    System.getenv("MUXI_SECRET_KEY")
+));
+
+var status = server.status();
+System.out.println(status);
+```
+
+### FormationClient
+
+```java
+import dev.muxi.sdk.*;
 import com.google.gson.JsonObject;
 
-// Chat streaming
-JsonObject request = new JsonObject();
-request.addProperty("message", "Tell me a story");
+var client = new FormationClient(new FormationConfig.Builder()
+    .formationId("my-bot")
+    .serverUrl(System.getenv("MUXI_SERVER_URL"))
+    .clientKey(System.getenv("MUXI_CLIENT_KEY"))
+    .adminKey(System.getenv("MUXI_ADMIN_KEY"))
+    .build());
 
-formation.chatStream(request, "user-123", event -> {
-    if ("message".equals(event.getEvent())) {
-        System.out.println(event.getData());
-    }
-});
-
-// Event streaming
-formation.streamEvents("user-123", event -> {
-    System.out.println(event.getData());
-});
-
-// Log streaming (admin)
-formation.streamLogs("info", event -> {
-    System.out.println(event.getData());
-});
+var payload = new JsonObject();
+payload.addProperty("message", "Hello");
+var response = client.chat(payload, "user123");
+System.out.println(response);
 ```
 
 ## Auth & Headers
 
-- **ServerClient**: HMAC with `keyId`/`secretKey` on `/rpc` endpoints.
-- **FormationClient**: `X-MUXI-CLIENT-KEY` or `X-MUXI-ADMIN-KEY` on `/api/{formation}/v1`. Override `baseUrl` for direct access (e.g., `http://localhost:9012/v1`).
-- **Idempotency**: `X-Muxi-Idempotency-Key` auto-generated on every request.
-- **SDK headers**: `X-Muxi-SDK`, `X-Muxi-Client` set automatically.
+- **ServerClient**: HMAC signature (`MUXI-HMAC key=<id>, timestamp=<sec>, signature=<b64>`)
+- **FormationClient**: `X-MUXI-CLIENT-KEY` required; `X-MUXI-ADMIN-KEY` for admin endpoints
+- **Idempotency**: `X-Muxi-Idempotency-Key` auto-generated on every request
+- **SDK Headers**: `X-Muxi-SDK: java/{version}`, `X-Muxi-Client: {os}/{arch}`
 
 ## Timeouts & Retries
 
-- Default timeout: 30s (no timeout for streaming).
-- Retries: `maxRetries` with exponential backoff on 429/5xx/connection errors; respects `Retry-After`.
+- Default timeout: 30s (configurable)
+- Retries on 429/5xx with exponential backoff
+- Respects `Retry-After` header for rate limits
 
 ## Error Handling
 
 ```java
-import dev.muxi.sdk.Errors.*;
+import dev.muxi.sdk.exceptions.*;
 
 try {
-    formation.chat(request, "user-123");
-} catch (AuthenticationException e) {
-    System.out.println("Auth failed: " + e.getMessage());
-} catch (RateLimitException e) {
-    System.out.println("Rate limited. Retry after: " + e.getRetryAfter() + "s");
-} catch (NotFoundException e) {
-    System.out.println("Not found: " + e.getMessage());
-} catch (MuxiException e) {
-    System.out.println(e.getErrorCode() + ": " + e.getMessage() + " (" + e.getStatusCode() + ")");
-}
+    server.getFormation("nonexistent");
+} catch (AuthenticationException e) { /* 401 */ }
+  catch (AuthorizationException e) { /* 403 */ }
+  catch (NotFoundException e) { /* 404 */ }
+  catch (ValidationException e) { /* 422 */ }
+  catch (RateLimitException e) { /* 429 - check e.getRetryAfter() */ }
+  catch (ServerException e) { /* 5xx */ }
+  catch (ConnectionException e) { /* network error */ }
+  catch (MuxiException e) { /* base exception */ }
 ```
 
-Error types: `AuthenticationException`, `AuthorizationException`, `NotFoundException`, `ValidationException`, `RateLimitException`, `ServerException`, `ConflictException`, `ConnectionException`.
+## Streaming
 
-## Notable Endpoints (FormationClient)
+```java
+// Chat streaming with callback
+client.chatStream(payload, "user123", event -> {
+    System.out.print(event.getData());
+});
 
-| Category | Methods |
-|----------|---------|
-| Chat/Audio | `chat`, `chatStream`, `audioChat`, `audioChatStream` |
-| Memory | `getMemoryConfig`, `getMemories`, `addMemory`, `deleteMemory`, `getUserBuffer`, `clearUserBuffer`, `clearSessionBuffer`, `clearAllBuffers`, `getBufferStats` |
-| Scheduler | `getSchedulerConfig`, `getSchedulerJobs`, `getSchedulerJob`, `createSchedulerJob`, `deleteSchedulerJob` |
-| Sessions | `getSessions`, `getSession`, `getSessionMessages`, `restoreSession` |
-| Requests | `getRequests`, `getRequestStatus`, `cancelRequest` |
-| Agents/MCP | `getAgents`, `getAgent`, `getMcpServers`, `getMcpServer`, `getMcpTools` |
-| Secrets | `getSecrets`, `getSecret`, `setSecret`, `deleteSecret` |
-| Credentials | `listCredentialServices`, `listCredentials`, `getCredential`, `createCredential`, `deleteCredential` |
-| Identifiers | `getUserIdentifiersForUser`, `linkUserIdentifier`, `unlinkUserIdentifier` |
-| Triggers/SOP | `getTriggers`, `getTrigger`, `fireTrigger`, `getSops`, `getSop` |
-| Audit | `getAuditLog`, `clearAuditLog` |
-| Config | `getStatus`, `getConfig`, `getFormationInfo`, `getAsyncConfig`, `getA2aConfig`, `getLoggingConfig`, `getLoggingDestinations`, `getOverlordConfig`, `getOverlordPersona`, `getLlmSettings` |
-| Streaming | `streamEvents`, `streamLogs`, `streamRequest` |
-| User | `resolveUser` |
+// Deploy with progress
+server.deployFormationStream(formationId, payload, event -> {
+    System.out.println(event.getEvent() + ": " + event.getData());
+});
+```
 
 ## Webhook Verification
 
 ```java
 import dev.muxi.sdk.Webhook;
-import dev.muxi.sdk.Webhook.WebhookEvent;
 
-// In your HTTP handler
+// In your webhook handler
 String payload = request.getBody();
 String signature = request.getHeader("X-Muxi-Signature");
 String secret = System.getenv("WEBHOOK_SECRET");
 
 if (!Webhook.verifySignature(payload, signature, secret)) {
-    response.setStatus(401);
-    return;
+    return ResponseEntity.status(401).body("Invalid signature");
 }
 
-WebhookEvent event = Webhook.parse(payload);
+var event = Webhook.parse(payload);
 
 switch (event.getStatus()) {
     case "completed":
-        for (WebhookEvent.ContentItem item : event.getContent()) {
+        for (var item : event.getContent()) {
             if ("text".equals(item.getType())) {
                 System.out.println(item.getText());
             }
@@ -162,9 +136,13 @@ switch (event.getStatus()) {
 }
 ```
 
-## Testing Locally
+## Testing
 
 ```bash
-cd java
-gradle test
+./gradlew test
 ```
+
+## Contributing
+
+- Format with your IDE's Java formatter
+- Preserve idempotency header injection
