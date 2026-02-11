@@ -111,6 +111,7 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MUXI_SDK_MAVEN_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MUXI_SDK_MAVEN_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.MUXI_SDK_GPG_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MUXI_SDK_GPG_PASSPHRASE }}
         run: |
           export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat /tmp/signing-key.asc)"
