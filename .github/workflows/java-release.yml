@@ -108,9 +108,10 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MUXI_SDK_MAVEN_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MUXI_SDK_MAVEN_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MUXI_SDK_GPG_PASSPHRASE }}
-        run: ./gradlew publishAndReleaseToMavenCentral
+        run: |
+          export ORG_GRADLE_PROJECT_signingInMemoryKey=$(echo "${{ secrets.MUXI_SDK_GPG_PRIVATE_KEY }}" | base64 -d)
+          ./gradlew publishAndReleaseToMavenCentral
 
       - name: Commit version bump
         run: |
