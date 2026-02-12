@@ -1,15 +1,18 @@
 plugins {
     java
     `java-library`
-    id("com.vanniktech.maven.publish") version "0.28.0"
+    `maven-publish`
+    signing
 }
 
 group = "org.muxi"
-version = "0.20260212.0"
+version = "0.1.0-preview"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+    withJavadocJar()
 }
 
 repositories {
@@ -30,36 +33,37 @@ tasks.test {
     useJUnitPlatform()
 }
 
-mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
-    
-    coordinates(group.toString(), "muxi-java", version.toString())
-    
-    pom {
-        name.set("MUXI Java SDK")
-        description.set("Java SDK for MUXI AI platform")
-        url.set("https://github.com/muxi-ai/muxi-java")
-        
-        licenses {
-            license {
-                name.set("MIT License")
-                url.set("https://opensource.org/licenses/MIT")
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            
+            pom {
+                name.set("MUXI Java SDK")
+                description.set("Java SDK for MUXI AI platform")
+                url.set("https://github.com/muxi-ai/muxi-java")
+                
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id.set("muxi")
+                        name.set("MUXI AI")
+                        email.set("support@muxi.ai")
+                    }
+                }
+                
+                scm {
+                    connection.set("scm:git:git://github.com/muxi-ai/muxi-java.git")
+                    developerConnection.set("scm:git:ssh://github.com/muxi-ai/muxi-java.git")
+                    url.set("https://github.com/muxi-ai/muxi-java")
+                }
             }
-        }
-        
-        developers {
-            developer {
-                id.set("muxi")
-                name.set("MUXI AI")
-                email.set("support@muxi.ai")
-            }
-        }
-        
-        scm {
-            connection.set("scm:git:git://github.com/muxi-ai/muxi-java.git")
-            developerConnection.set("scm:git:ssh://github.com/muxi-ai/muxi-java.git")
-            url.set("https://github.com/muxi-ai/muxi-java")
         }
     }
 }
