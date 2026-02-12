@@ -121,7 +121,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MUXI_SDK_GPG_PASSPHRASE }}
         run: |
           export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat /tmp/signing-key.asc)"
-          ./gradlew publishAndReleaseToMavenCentral
+          ./gradlew publishAndReleaseToMavenCentral --stacktrace
           rm -f /tmp/signing-key.asc
 
       - name: Commit version bump
