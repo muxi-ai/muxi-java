@@ -178,7 +178,7 @@ public class FormationClient {
     
     // Overlord / LLM
     public JsonObject getOverlordConfig() throws IOException { return request("GET", "/overlord", null, null, true, null); }
-    public JsonObject getOverlordPersona() throws IOException { return request("GET", "/overlord/persona", null, null, true, null); }
+    public JsonObject getOverlordSoul() throws IOException { return request("GET", "/overlord/soul", null, null, true, null); }
     public JsonObject getLlmSettings() throws IOException { return request("GET", "/llm/settings", null, null, true, null); }
     
     // Triggers / SOP / Audit
