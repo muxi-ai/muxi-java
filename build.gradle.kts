@@ -1,8 +1,7 @@
 plugins {
     java
     `java-library`
-    `maven-publish`
-    signing
+    id("com.vanniktech.maven.publish") version "0.28.0"
 }
 
 group = "org.muxi"
@@ -11,8 +10,6 @@ version = "0.1.0-preview"
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-    withSourcesJar()
-    withJavadocJar()
 }
 
 repositories {
@@ -33,37 +30,41 @@ tasks.test {
     useJUnitPlatform()
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-            
-            pom {
-                name.set("MUXI Java SDK")
-                description.set("Java SDK for MUXI AI platform")
-                url.set("https://github.com/muxi-ai/muxi-java")
-                
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                
-                developers {
-                    developer {
-                        id.set("muxi")
-                        name.set("MUXI AI")
-                        email.set("support@muxi.ai")
-                    }
-                }
-                
-                scm {
-                    connection.set("scm:git:git://github.com/muxi-ai/muxi-java.git")
-                    developerConnection.set("scm:git:ssh://github.com/muxi-ai/muxi-java.git")
-                    url.set("https://github.com/muxi-ai/muxi-java")
-                }
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+    
+    coordinates(group.toString(), "muxi-java", version.toString())
+    
+    pom {
+        name.set("MUXI Java SDK")
+        description.set("Java SDK for MUXI AI platform")
+        url.set("https://github.com/muxi-ai/muxi-java")
+        inceptionYear.set("2024")
+        
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
             }
         }
+        
+        developers {
+            developer {
+                id.set("muxi")
+                name.set("MUXI AI")
+                email.set("support@muxi.ai")
+            }
+        }
+        
+        scm {
+            connection.set("scm:git:git://github.com/muxi-ai/muxi-java.git")
+            developerConnection.set("scm:git:ssh://github.com/muxi-ai/muxi-java.git")
+            url.set("https://github.com/muxi-ai/muxi-java")
+        }
     }
+}
+
+tasks.withType<Javadoc> {
+    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
 }
