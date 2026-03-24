@@ -152,6 +152,9 @@ public class FormationClient {
         return request("POST", "/scheduler/jobs", null, body, true, null);
     }
     public void deleteSchedulerJob(String jobId) throws IOException { request("DELETE", "/scheduler/jobs/" + jobId, null, null, true, null); }
+    public JsonObject updateSchedulerJob(String jobId, JsonObject updates) throws IOException { return request("PUT", "/scheduler/jobs/" + jobId, null, updates, true, null); }
+    public JsonObject pauseSchedulerJob(String jobId) throws IOException { return request("POST", "/scheduler/jobs/" + jobId + "/pause", null, null, true, null); }
+    public JsonObject resumeSchedulerJob(String jobId) throws IOException { return request("POST", "/scheduler/jobs/" + jobId + "/resume", null, null, true, null); }
     
     // Config endpoints
     public JsonObject getAsyncConfig() throws IOException { return request("GET", "/async", null, null, true, null); }
