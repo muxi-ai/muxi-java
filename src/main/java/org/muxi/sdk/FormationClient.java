@@ -265,17 +265,8 @@ public class FormationClient {
         try (Response response = streamClient.newCall(builder.build()).execute()) {
             if (response.body() == null) return;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body().byteStream()))) {
-                String currentEvent = null;
-                List<String> dataParts = new ArrayList<>();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith(":")) continue;
-                    if (line.isEmpty()) {
-                        if (!dataParts.isEmpty()) handler.accept(new SseEvent(currentEvent != null ? currentEvent : "message", String.join("\n", dataParts)));
-                        currentEvent = null; dataParts.clear(); continue;
-                    }
-                    if (line.startsWith("event:")) currentEvent = line.substring(6).trim();
-                    else if (line.startsWith("data:")) dataParts.add(line.substring(5).trim());
+                for (SseEvent event : SseParser.parse(reader)) {
+                    handler.accept(event);
                 }
             }
         }
@@ -291,17 +282,8 @@ public class FormationClient {
         try (Response response = streamClient.newCall(builder.build()).execute()) {
             if (response.body() == null) return;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body().byteStream()))) {
-                String currentEvent = null;
-                List<String> dataParts = new ArrayList<>();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith(":")) continue;
-                    if (line.isEmpty()) {
-                        if (!dataParts.isEmpty()) handler.accept(new SseEvent(currentEvent != null ? currentEvent : "message", String.join("\n", dataParts)));
-                        currentEvent = null; dataParts.clear(); continue;
-                    }
-                    if (line.startsWith("event:")) currentEvent = line.substring(6).trim();
-                    else if (line.startsWith("data:")) dataParts.add(line.substring(5).trim());
+                for (SseEvent event : SseParser.parse(reader)) {
+                    handler.accept(event);
                 }
             }
         }
