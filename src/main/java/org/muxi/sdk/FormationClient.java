@@ -71,6 +71,24 @@ public class FormationClient {
     }
     public void deleteSecret(String key) throws IOException { request("DELETE", "/secrets/" + key, null, null, true, null); }
     
+    /**
+     * Widgets from an {@code event: ui} stream frame; an empty array for other frames.
+     * The runtime delivers the response envelope's optional {@code ui} array (options,
+     * action_link, mcp_resource widgets) as a single {@code event: ui} SSE frame before
+     * {@code event: done}. Unknown widget types should be ignored (progressive enhancement).
+     */
+    public static JsonArray parseUiWidgets(SseEvent event) {
+        if (!"ui".equals(event.event())) return new JsonArray();
+        try {
+            JsonElement parsed = JsonParser.parseString(event.data());
+            if (parsed.isJsonObject() && parsed.getAsJsonObject().get("ui") instanceof JsonArray ui) {
+                return ui.deepCopy();
+            }
+        } catch (JsonSyntaxException ignored) {
+        }
+        return new JsonArray();
+    }
+
     // Chat
     public JsonObject chat(JsonObject payload, String userId) throws IOException { return request("POST", "/chat", null, payload, false, userId); }
     public void chatStream(JsonObject payload, String userId, Consumer<SseEvent> handler) throws IOException {
@@ -318,7 +336,7 @@ public class FormationClient {
         if (hasBody) builder.header("Content-Type", "application/json");
     }
     
-    private JsonObject unwrapEnvelope(JsonElement elem) {
+    static JsonObject unwrapEnvelope(JsonElement elem) {
         if (!elem.isJsonObject()) return elem.getAsJsonObject();
         JsonObject obj = elem.getAsJsonObject();
         if (!obj.has("data")) return obj;
@@ -328,6 +346,7 @@ public class FormationClient {
             if (obj.has("request") && obj.get("request").isJsonObject()) {
                 JsonObject req = obj.get("request").getAsJsonObject();
                 if (req.has("id") && !result.has("request_id")) result.addProperty("request_id", req.get("id").getAsString());
+                if (req.has("idempotency_key") && !result.has("idempotency_key")) result.add("idempotency_key", req.get("idempotency_key"));
             } else if (obj.has("request_id") && !result.has("request_id")) {
                 result.add("request_id", obj.get("request_id"));
             }
